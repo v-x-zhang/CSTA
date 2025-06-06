@@ -1,0 +1,44 @@
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# Environment variables and sensitive files
+.env
+.env.local
+.env.production
+*.env
+api_keys.*
+secrets.*
+config/secrets.json
+
+# Logs
+logs/*.log
+*.log
+
+# Database files (can be regenerated)
+data/*.db
+data/*.sqlite
+data/*.sqlite3
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+
+# API response cache
+cache/

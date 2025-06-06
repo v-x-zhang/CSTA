@@ -1,0 +1,82 @@
+Get Price Empire API access
+• ReCompute cost and average float for each candidate set
+• Sum the ten chosen skins' market prices; call this total "input cost."
+• Calculate the average float by taking each skin's representative float (for example, midpoint of its float range) and averaging over all 10. Since price empire doesn't offer floats, use CSFLOATS api to continue. The Docs are here : https://docs.csfloat.com/#introduction
+The CSFLOAT API key should be set in your .env file as CSFLOAT_API_KEYhe documentation so you know which endpoint returns current skin prices, float ranges, and collection information. The docs are here: https://pricempire.com/docs
+The Price Empire API key should be set in your .env file as PRICEMPIRE_API_KEY
+
+Download and cache skin data
+• Request all marketable skins for each rarity (Mil-Spec, Restricted, Classified, Covert).
+• Store each skin’s name, its collection, its current market price, and its float range (0–1).
+• Keep this data in memory or a simple local database so you don’t have to hit the API every time.
+
+Organize skins by collection and rarity
+• Build a lookup structure where, for each collection, you have lists of skins at each rarity along with their latest prices and float info.
+• Example:
+Operation Phoenix →
+• Mil-Spec skins: [P250 | Bone Mask ($0.15, float range), …]
+• Restricted skins: [FAMAS | Djinn ($0.40, float range), …]
+Chroma 3 →
+• Mil-Spec skins: […]
+• Restricted skins: [SG 553 | Cyrex ($0.50, float range), …]
+• This makes it easy to look up every skin in a collection and see what you could get one tier up.
+
+Generate candidate 10-skin sets per rarity
+• For each rarity tier starting with Mil-Spec → Restricted (and so on):
+
+Identify all collections that have at least one skin at this tier and at least one skin one tier above.
+
+Sort each collection’s skins of the current tier by price (low to high).
+
+Pair up collections in every possible two‐collection combination (including using only one collection).
+
+For each pair (C₁, C₂), consider splits of 10 inputs like 10C₁+0C₂, 9C₁+1C₂, 8C₁+2C₂, …, 0C₁+10C₂.
+
+For each split, choose that many cheapest skins from C₁ and that many cheapest skins from C₂ to form your 10‐skin set.
+
+Compute cost and average float for each candidate set
+• Sum the ten chosen skins’ market prices; call this total “input cost.”
+• Calculate the average float by taking each skin’s representative float (for example, midpoint of its float range) and averaging over all 10. Since price empire doesn't offer floats, use CSFLOATS api to continue. The Docs are here : https://docs.csfloat.com/#introduction
+The CSFLOAT API key should be set in your .env file as CSFLOAT_API_KEY
+
+Build the next-tier output pool and calculate odds
+• Look at the collections you used (C₁ and C₂). For each:
+– Count how many inputs came from that collection (k_C).
+– Count how many skins one tier above exist in that collection (m_C).
+• Compute “total weight” = (k_C₁ × m_C₁) + (k_C₂ × m_C₂).
+• Then each individual next-tier skin in C₁ has probability k_C₁ / total_weight; each in C₂ has probability k_C₂ / total_weight.
+
+Fetch output prices and calculate expected return
+• For each skin in the output pool, look up its current market price (use your cached Price Empire data).
+• Compute expected output price = sum over all pool skins of [ probability × market price ].
+• Compute raw expected profit = (expected output price) – (input cost).
+• Check “guaranteed profit” by seeing if the cheapest skin in the pool has a price higher than your total input cost. If so, you’ll profit no matter which skin you get.
+
+Filter out and rank profitable trade-ups
+• If raw expected profit > 0, mark the set as “positive-EV.”
+• If “cheapest output price > input cost,” also mark it as “guaranteed-profit.”
+• Make a final list ordered with guaranteed-profit cases first (sorted by margin) and then positive-EV cases (sorted by ROI or absolute profit).
+
+Optimize the enumeration process
+• Cache price data and refresh at reasonable intervals (e.g., every 15 minutes) to avoid API rate limits.
+• Before generating every split, check if the sum of the ten cheapest skins (e.g., 10 from C₁) already exceeds the cheapest next-tier price—if so, skip deeper mixes.
+• Consider running the combinations in parallel threads or processes, since you’re effectively scanning N² × 10 possible splits if you have N collections at a given rarity.
+• If you want more precise float-based pricing, use any float-to-price curves Price Empire provides so that you can plug in your average‐float estimate rather than always using median price.
+
+End-to-end workflow summary
+1. Fetch and cache all skin prices, floats, and collection info.
+2. Build a data structure grouping skins by collection and rarity.
+3. For each rarity tier (Mil-Spec→Restricted, Restricted→Classified, Classified→Covert):
+  a. Find all collections that can trade up.
+  b. Sort each collection’s skins by price.
+  c. For every pair of collections (including a single-collection case) and every 10:0, 9:1, … 0:10 split:
+   i. Pick the cheapest k_C skins from each collection.
+   ii. Compute input cost and average float.
+   iii. Calculate k_C and m_C for each collection, then total_weight.
+   iv. For each output skin, compute its probability = k_C / total_weight.
+   v. Look up each output’s market price, compute expected output price, then raw EV.
+   vi. Check if the cheapest output price > input cost for a “guaranteed profit” flag.
+   vii. If EV > 0 or guaranteed, add to your result list with all stats.
+  d. Move on to the next split or next pair of collections.
+4. After scanning everything, sort your list—guaranteed-profit first, then positive-EV.
+5. Present the top candidates: for each, show input skins + cost, output pool + probabilities, EV, and guaranteed‐profit status.

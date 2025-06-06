@@ -1,0 +1,34 @@
+Ten inputs, all the same rarity
+You must submit exactly ten weapon skins of identical rarity (for example, ten Mil-Spec blues). You cannot mix rarities—no mixing Mil-Spec and Restricted, etc.
+
+Output pool comes only from collections you used
+Each input skin belongs to one (or more) collections. Gather every skin one rarity higher from each of those collections; the union of those is your output pool. You cannot receive any skin from a collection that none of your inputs belonged to.
+
+Probability formula
+For each collection C, let k_C be the number of your inputs from C, and let m_C be the number of next-tier skins in C. Compute the value sum_over_collections = sum for every collection D of (k_D multiplied by m_D). Then each individual skin in collection C’s next-tier list has probability equal to k_C divided by sum_over_collections.
+Example 1: If you have 9 inputs from collection A and collection A has 1 next-tier skin, and you have 1 input from collection B and collection B has 2 next-tier skins, then sum_over_collections = (9 × 1) + (1 × 2) = 11. The single skin from collection A has probability 9/11 (about 81.82 percent). Each of the two skins from collection B has probability 1/11 (about 9.09 percent each).
+Example 2: If you change to 8 inputs from A and 2 inputs from B (still m_A = 1, m_B = 2), then sum_over_collections = (8 × 1) + (2 × 2) = 12. The single skin from A has probability 8/12 (66.67 percent). Each of the two skins from B has probability 2/12 (16.67 percent each).
+
+One-tier upgrade only; no knives
+You always move up exactly one rarity: Mil-Spec → Restricted, Restricted → Classified, Classified → Covert. You cannot trade up to a knife or gloves; Covert-tier inputs yield only Covert firearms, never rare knives or gloves.
+
+FLOAT CALCULATION
+Float equals average of input floats (0–1 scale)
+Every input float is already on a 0–1 scale. The output’s float is the arithmetic average of your ten input floats. There is no random float sampling between minimum and maximum; the engine returns the simple average.
+
+Only marketable weapon skins; no souvenirs or contraband
+You may only submit marketable weapon skins of the chosen rarity. Souvenir packages, contraband, StatTrak modules, keys, capsules, music kits, stickers, and similar items do not count as inputs.
+
+StatTrak Skins will be ignored.
+
+No hidden weights beyond the formula above
+Aside from rarity (only next-tier items appear), collection membership, and the float-averaging rule, there is no other bias. The only factors that determine odds are how many inputs from each collection (k_C) and how many next-tier skins that collection has (m_C).
+
+Workflow summary
+Step 1: Choose ten skins of equal rarity.
+Step 2: Identify each input’s collection(s).
+Step 3: Build the output pool by listing every skin one rarity higher from those collections.
+Step 4: For each collection C, count k_C (number of inputs from C) and m_C (number of next-tier skins in C).
+Step 5: Compute sum_over_collections = sum for all collections D of (k_D multiplied by m_D).
+Step 6: Each output skin in C has probability k_C divided by sum_over_collections.
+Step 7: The output’s float is the average of your ten input floats scaled to the output skin's float range.

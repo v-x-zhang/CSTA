@@ -1,0 +1,23 @@
+{
+  "api": {
+    "pricempire_api_key": "f38ebad0-5f2b-4473-aeec-021ef7d04460",
+    "rate_limit_delay": 1.0,
+    "timeout": 30,
+    "max_retries": 3
+  },
+  "database": {
+    "db_path": null,
+    "cache_expiry_hours": 6,
+    "auto_cleanup": true,
+    "backup_enabled": true
+  },
+  "search": {
+    "max_cost": 50.0,
+    "max_float": 0.8,
+    "min_float": 0.0,
+    "profit_threshold": 0.1,
+    "max_samples": 1000,
+    "prefer_guaranteed_profit": false,
+    "enable_cross_collection": true
+  }
+}
